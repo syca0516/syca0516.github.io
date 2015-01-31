@@ -1,0 +1,58 @@
+---
+layout: post
+title:  "Java容器添加元素"
+date:   2015-01-31 18:47:57
+categories: java
+---
+java.util包中的Arrays和Collections提供了很多方便的方式来往一个Collection中添加元素。`Arrays.asList()`方法接受一个数组或者用逗号分隔的元素列表，并将其转换为一个List对象。当然，这个数组中存储的或者元素列表中的元素可以是任何对象。而`Collections.addAll()`方法接受一个Collection对象以及一个数组或者用逗号分隔的元素列表，将元素添加到Collection对象中。
+
+{% highlight java %}
+// Collection的构造器可以接受另一个Collection来将自己初始化
+// Arrays.asList()来
+Collection<Integer> collection =
+        new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
+Integer[] moreInts = { 7, 8, 9, 10, };
+collection.addAll(Arrays.asList(moreInts));
+// 下面的运行的要快一点 但是不能通过这种方式构造一个Collection
+Collections.addAll(collection, 11, 12, 13, 14, 15);
+Collections.addAll(collection, moreInts);
+// 以数组创建一个List 但是不能往里面添加元素 因为数组长度已经固定了
+// 如果尝试添加则会导致运行时错误，就是说只有在运行的时候才会报错
+List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
+//list.add(6);
+{% endhighlight %}
+
+`Arrays.asList()`和`Collection.addAll()`使用了可变参数列表，因而比`Collection.addAll()`成员方法要灵活。
+
+《Thinking In Java》关于`Arrays.asList()`的部分可能有点过时了，比如在讨论`Arrays.asList()`产生的List的类型的描述。
+
+{% highlight java %}
+class Snow {}
+class Powder extends Snow {}
+class Light extends Powder {}
+class Heavy extends Powder {}
+class Crusty extends Snow {}
+class Slush extends Snow {}
+
+public class AsListInference {
+	public static void main(String[] args) {
+		List<Snow> snow1 = Arrays.asList(
+                new Crusty(), new Slush(), new Powder()
+        );
+
+        // 可以编译 生成的List不会是Powder类型而是Snow
+        List<Snow> snow2 = Arrays.asList(
+                new Light(), new Heavy()
+        );
+
+        List<Snow> snow3 = new ArrayList<>();
+        Collections.addAll(snow3, new Light(), new Heavy());
+
+        List<Snow> snow4 = Arrays.<Snow>asList(
+                new Light(), new Heavy()
+        );
+    }	
+}
+{% endhighlight %}
+
+上面四种方式现在都是可以的，其中`snow2`在Java8以前是编译不了的。这样看的话第四种方式现在就显得有点多余了，当然你得使用Java8。
