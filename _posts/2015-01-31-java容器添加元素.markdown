@@ -2,13 +2,12 @@
 layout: post
 title:  "Java容器添加元素"
 date:   2015-01-31 18:47:57
-categories: java
 ---
 java.util包中的Arrays和Collections提供了很多方便的方式来往一个Collection中添加元素。`Arrays.asList()`方法接受一个数组或者用逗号分隔的元素列表，并将其转换为一个List对象。当然，这个数组中存储的或者元素列表中的元素可以是任何对象。而`Collections.addAll()`方法接受一个Collection对象以及一个数组或者用逗号分隔的元素列表，将元素添加到Collection对象中。
 
 {% highlight java %}
 // Collection的构造器可以接受另一个Collection来将自己初始化
-// Arrays.asList()来
+// Arrays.asList()来为其产生输入
 Collection<Integer> collection =
         new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
 Integer[] moreInts = { 7, 8, 9, 10, };
