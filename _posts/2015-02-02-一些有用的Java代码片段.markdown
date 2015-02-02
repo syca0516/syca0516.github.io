@@ -4,6 +4,7 @@ title: "一些有用的Java代码片段"
 date: 2015-02-02
 ---
 这些代码有的来自网上，有的是自己常用的，放在这里作为一个积累。
+
 ## 声明一个数组和打印一个数组
 {% highlight java %}
 String[] aArray = new String[5];
