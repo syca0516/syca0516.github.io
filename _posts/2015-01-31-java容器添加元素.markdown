@@ -21,7 +21,7 @@ List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
 //list.add(6);
 {% endhighlight %}
 
-`Arrays.asList()`和`Collection.addAll()`使用了可变参数列表，因而比`Collection.addAll()`成员方法要灵活。
+`Arrays.asList()`和`Collections.addAll()`使用了可变参数列表，因而比`Collection.addAll()`成员方法要灵活。
 
 《Thinking In Java》关于`Arrays.asList()`的部分可能有点过时了，比如在讨论`Arrays.asList()`产生的List的类型的时候。
 
