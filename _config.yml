@@ -1,13 +1,11 @@
 # Site settings
-title: jinlong
+title: 彩虹
 email: zx547732454@live.com
 description: > # this means to ignore newlines until "baseurl:"
   他们的爱，他们的恨，他们的嫉妒，都早消灭了。在日光之下所行的一切事上，
   他们永不再有份了。
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://xiaojinlong.org" # the base hostname & protocol for your site
-# twitter_username: jekyllrb
 github_username:  syca0516
-
 # Build settings
 markdown: kramdown
