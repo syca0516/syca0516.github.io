@@ -40,7 +40,7 @@ why静态方法？
 其它用到这个数据结构的代码就都得改得情况啊？不是只要改操作这个数据结构的那几个函数不就行了？
 
 我们来看一个栈的例子，来自于[《松本行泓的程序世界》](http://book.douban.com/subject/6756090/)
-```ruby
+{% highlight ruby %}
 # 用Stack.new生成新的栈
 stack = Stack.new
 # 对stack进行push操作
@@ -49,9 +49,9 @@ stack.push(9)
 # 用stack的pop方法取出数据
 puts stack.pop() # 显示9
 puts stack.pop() # 显示5
-```
+{% endhighlight %}
 这个是用Stack这个类（貌似需要自己去定义）定义的api来对栈进行操作的。再看下面这个：
-```ruby
+{% highlight ruby %}
 # 用数组实现栈的操作
 stack = []
 # 数组的先头位置
@@ -66,7 +66,7 @@ sp -= 1
 puts stack[sp]
 sp -= 1
 puts stack[sp]
-```
+{% endhighlight %}
 对比上面两种操作栈的方式，你大概就能明白他们说的是什么问题了。你用类的话就只能用类提供的方法去操作数据，否则你就可以随意
 的对数据结构的内部实现进行操作，不把一个栈当做一个栈，而是把它当做数组去操作。这就是为什么在C里面改动数据结构的内部实
 现（比如说struct里面的一个字段）会影响某些使用它的代码，因为它们直接操作了struct里面的字段。而如果按照数据结构书上面的那
