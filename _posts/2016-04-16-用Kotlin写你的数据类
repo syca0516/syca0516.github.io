@@ -1,0 +1,79 @@
+---
+layout: post
+title: "用Kotlin写你的数据类"
+date: 2016-04-16
+---
+最近又重新捡起Java来写毕设，然而再一次的，我被那些啥事也没做的getter、setter弄烦了。碰巧现在Kotlin已经集成到IDEA里了，我就想是不是可以
+用它来简化那些没用的getter、setter呢？
+
+在Java中，我们经常会创建一些类，它们没有复杂的逻辑，只包含几个内部字段，并提供get、set方法供外部修改。也就是说，这些类只是用来承载数据的。
+比如当web请求的参数过多时，你可以建一个类，里面的字段就是要传过来的参数，只要名字一样，一些web框架就可以帮你把参数set到这个类的对象中。
+或者更常见的，用来接收数据库返回的数据，你可以声明返回值为List<Something>（假设使用的是MyBatis），而Something就对应数据库返回值的其中
+一行数据。这些类用来打包数据，这在静态语言中很常见，比如C#。
+
+不过这些类有一个让人讨厌的地方，那就是一堆getter、setter方法。虽然不清楚这种现象的由来，但是目前很多框架都默认以这种方式来处理你的Java类的。
+如果你有一个字段a，那么这些框架在做一些处理时，就会调用setA()、getA()。一个典型的例子就像下面那样：
+{% highlight ruby %}
+public class User {
+    private int userId;
+    private String userName;
+    private int userType;
+    private String userPhone;
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public int getUserType() {
+        return userType;
+    }
+
+    public void setUserType(int userType) {
+        this.userType = userType;
+    }
+
+    public String getUserPhone() {
+        return userPhone;
+    }
+
+    public void setUserPhone(String userPhone) {
+        this.userPhone = userPhone;
+    }
+}
+{% endhighlight %}
+
+看到了吧，这个类声明了几个字段，然后通过相应的getter、setter方法去访问它们。至于为什么不直接去访问，一个不错的理由就是这些getter、setter方法
+里面可能会做一些处理，也就是说有时候这些内部字段并不是你想怎么去操作都可以，还要守点规矩。不过，上面这个例子中的确是什么都没做，而且我
+见到的大部分这种数据类也是什么都没做。一般大家都是直接用IDE提供的生成getter、setter功能来完成这个无聊的任务的。不过，显然这样的做法是
+不美观的，而且让你的代码多了几倍，你以后想要修改的时候，每次都要删掉原来的方法并重新生成。
+
+不过我觉得这是一个坏的做法，不是说它提供的功能不好，而是说它助长了一种对代码不进行仔细推敲的风气。像这样没有意义的代码多的很，大家却不以为意，
+这是一种坏的风气。
+
+以前，我也找过解决这种问题的办法，其中有一个就是通过给这些类里面的字段添加注解，代码里不用写getter、setter，编译的时候会自动生成那些方法。
+不过，因为需要插件支持，不然你在IDE中写代码时会一直显示错误，后来就放弃了。
+
+那么就来看看Kotlin是如何解决这个问题的吧。
+{% highlight kotlin %}
+data class User (
+    var userId: Int? = 0,
+    var userName: String? = "",
+    var userType: Int? = 0,
+    var userPhone: String? = ""
+)
+{% endhighlight %}
+很直接，对吧？关键的是，你写完之后，就直接可以在Java里面使用这个类，并调用getter、setter方法，框架使用这个类也没有问题。
+
+虽然引入新语言来解决问题实在是有些不妥，但是考虑到它和Java互操作很方便并且能够给某些问题提供一剂良药，我觉得还是值得的。
