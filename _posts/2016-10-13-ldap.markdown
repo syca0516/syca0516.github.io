@@ -82,15 +82,10 @@ URI ldap://10.10.10.1:389
 
 最后，为了后面使用方便，我们还要做两件事:
 - 使用`visudo`将赋予admin组成员sudo权限
-```
-# visudo
-
-%admin ALL=(ALL) ALL
-```
+        %admin ALL=(ALL) ALL
 - 编辑`/etc/pam.d/password-auth`，在最后加上下面那一行，这样当你登录的机器上没有你的家目录时会在登录时自动创建家目录
-```
-session     optional      pam_mkhomedir.so skel=/etc/skel/ umask=0022
-```
+        session     optional      pam_mkhomedir.so skel=/etc/skel/ umask=0022
+ 
 
 至此，LDAP客户机也配置好了，之后就可以用LDAP账号登录这台客户机了。
 
