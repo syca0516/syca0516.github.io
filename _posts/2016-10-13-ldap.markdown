@@ -1,0 +1,113 @@
+---
+layout: post
+title: "OpenLDAP的安装与使用"
+date: 2016-10-13
+---
+# LDAP
+
+LDAP(Lightweight Directory Access Protocol)是一个协议，它通过TCP/IP提供访问控制和维护分布式信息的目录信息。这里的目录容易造成误解，它并不是操作系统里的文件目录，我们可以把它想成是一本书的目录来理解它。基本上它是通过数据库来维护目录信息的，更多的信息可以参考[这里](https://zh.wikipedia.org/wiki/%E8%BD%BB%E5%9E%8B%E7%9B%AE%E5%BD%95%E8%AE%BF%E9%97%AE%E5%8D%8F%E8%AE%AE)
+
+我们可以用它来做统一认证。我们只需要在LDAP服务器上建立一个账户，就可以用这个账户去登录安装了LDAP客户端的机器，就好像那台机器上本来就有这个用户一样。这样当我们想要更换密码时，只需要在LDAP服务器上修改即可，想要添加一个新用户也只需要在LDAP服务器上新加一个用户，而这个新加的用户即可登录任何一台LDAP客户机，非常方便。同时我们也可以对用户做权限控制，比如说控制其是否可以sudo执行命令。
+
+LDAP协议有很多实现，OpenLDAP就是其中一种。下面简单介绍一下OpenLDAP在CentOS 6.4上的安装部署过程。
+
+## LDAP服务器
+假设服务器搭建在`10.10.10.1`上面，我们将直接用yum安装OpenLDAP（编译安装除了需要编译OpenLDAP外，还需要处理其依赖的BerkeleyDB，不过效果是一样的）
+
+我们需要安装以下这几个包
+- `openldap` 包含openldap配置文件、库文件
+- `openldap-servers` 包含slapd和slurpd（用于主从复制）、迁移脚本和相关文件
+- `openldap-clients` 包含客户端程序，用来访问和修改openldap目录
+
+具体安装的时候版本是2.4.40-12.el6。
+
+用包管理安装OpenLDAP会将一个启动脚本复制到/etc/init.d下面，我们可以用它来启动LDAP服务端，并设置让它开机启动。在`/etc/openldap`下面会保存它的配置文件，用包管理安装是不会有`slapd.conf`这个配置文件的（编译安装会有这个配置文件），而是默认有一个`slapd.d`的配置目录。由于OpenLDAP目前存在新旧两种配置文件格式，容易给人造成困惑。这里我们选择配置`slapd.conf`这个配置文件（默认没有，可以自己创建），这是旧式的配置文件，新的格式后缀是ldif，我们暂时不去考虑它。/etc/init.d/slapd启动脚本默认会使用/etc/openldap/slapd.d/目录下的配置启动服务端，这里我们想要自己重新配置，可以删除slapd.d这个目录或者重命名它，这样它就会使用slapd.conf来启动slapd了。
+
+```
+include /etc/openldap/schema/core.schema
+include /etc/openldap/schema/cosine.schema
+include /etc/openldap/schema/inetorgperson.schema
+include /etc/openldap/schema/nis.schema
+include /etc/openldap/schema/misc.schema
+
+loglevel        256
+pidfile /var/run/slapd.pid
+argsfile /var/run/slapd.args
+
+
+access to attrs=shadowLastChange,userPassword
+        by self write
+        by * auth
+
+access to *
+        by * read
+
+
+database        hdb
+suffix  "dc=your,dc=domain"
+rootdn  "cn=Manager,dc=your,dc=domain"
+rootpw  yourpassword
+
+directory       /var/lib/ldap
+
+index   objectClass     eq
+```
+
+这个配置文件的注释被去掉了，只配置了几个关键的地方，简单但是已经足够用了。要注意的是配置这个文件要注意`tab`键，它的一些选项名和值之间必须是用`tab`分隔的，用空格的话会出问题。
+
+客户端的配置文件是`ldap.conf`
+```
+BASE dc=your,dc=domain
+URI ldap://10.10.10.1:389
+```
+
+然后我们启动服务端并验证其是否运行正常
+```
+# service slapd start
+# ps aux | grep slapd
+# netstat -an | grep 389
+# ldapsearch -x -b '' -s base '(objectclass=*)' namingContexts
+```
+
+到这里OpenLDAP服务端已经配置启动好了，但是这时候我们想要往里面添加信息需要用ldapadd等命令行工具，不是很方便，我们可以通过安装一个Web操作界面来简化这个过程，这里我们选择的是`phpldapadmin`。它的安装过程就不多说了，注意安装后还需要配置`/etc/phpldapadmin/config.php`以填写服务器的相关信息，这样才能将它与已经运行的slapd关联起来。现在我们可以通过`10.10.10.1:5000/phpldapadmin`来访问它。
+
+
+## LDAP客户机
+在LDAP服务端已经配置运行成功后，我们可以在任何想使用LDAP服务的机器上部署客户端软件。
+
+在客户端我们需要安装一个包
+- `nss-pam-ldapd` 这个包主要提供了两个库一个是`libnss_ldap`，另一个是`pam_ldap`。
+
+接下来我们可以通过`authconfig-tui`来进行配置，这是一个命令行里的图形界面，我们只需要选择几个选项就可以了。具体过程可以参考[这里](http://www.ibm.com/developerworks/cn/linux/l-openldap/)。如果直接运行`authconfig-tui`不行的话，可以尝试`/usr/bin/python2.6 /usr/sbin/authconfig-tui`，另外如果不用这个配置的话，需要单独配置`/etc/pam.d/system-auth /etc/nsswitch.conf /etc/nslcd.conf /etc/sysconfig/authconfig`这几个配置文件，比较繁琐并且容易出错，如果需要的话，可以参考[这里](http://anquange.lofter.com/post/2effed_ce0eb4))。
+
+最后，为了后面使用方便，我们还要做两件事:
+- 使用`visudo`将赋予admin组成员sudo权限
+```
+# visudo
+
+%admin ALL=(ALL) ALL
+```
+- 编辑`/etc/pam.d/password-auth`，在最后加上下面那一行，这样当你登录的机器上没有你的家目录时会在登录时自动创建家目录
+```
+session     optional      pam_mkhomedir.so skel=/etc/skel/ umask=0022
+```
+
+至此，LDAP客户机也配置好了，之后就可以用LDAP账号登录这台客户机了。
+
+
+这篇文档里面省略了很多细节，只是描述了大致的部署情况，至于具体的运转过程，可以参考下面的链接：
+- https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-a-basic-ldap-server-on-an-ubuntu-12-04-vps
+- https://www.digitalocean.com/community/tutorials/how-to-authenticate-client-computers-using-ldap-on-an-ubuntu-12-04-vps 
+- http://anquange.lofter.com/post/2effed_ce0eb4
+- http://www.ibm.com/developerworks/cn/linux/l-openldap/
+- http://www.cnblogs.com/lanxuezaipiao/p/3664676.html
+- http://jianshi-dlw.iteye.com/blog/1557846
+- https://wiki.gentoo.org/wiki/Centralized_authentication_using_OpenLDAP/zh-cn#.E9.9B.86.E4.B8.AD.E5.BC.8F.E8.AE.A4.E8.AF.81.E5.AE.A2.E6.88.B7.E7.AB.AF.E9.85.8D.E7.BD.AE
+- https://arthurdejong.org/nss-pam-ldapd/setup
+- https://www.centos.org/forums/viewtopic.php?t=48631
+- http://www.cnblogs.com/cute/archive/2012/05/17/2506342.html
+- https://access.redhat.com/discussions/903523
+- http://danwalsh.livejournal.com/69837.html
+
+这是关于安装phpldapadmin的文章
+- http://blog.zwiegnet.com/linux-server/install-and-configure-phpldapadmin-on-centos-6/
