@@ -15,9 +15,9 @@ LDAP协议有很多实现，OpenLDAP就是其中一种。下面简单介绍一�
 假设服务器搭建在`10.10.10.1`上面，我们将直接用yum安装OpenLDAP（编译安装除了需要编译OpenLDAP外，还需要处理其依赖的BerkeleyDB，不过效果是一样的）
 
 我们需要安装以下这几个包
- - `openldap` 包含openldap配置文件、库文件
- - `openldap-servers` 包含slapd和slurpd（用于主从复制）、迁移脚本和相关文件
- - `openldap-clients` 包含客户端程序，用来访问和修改openldap目录
+- `openldap` 包含openldap配置文件、库文件
+- `openldap-servers` 包含slapd和slurpd（用于主从复制）、迁移脚本和相关文件
+- `openldap-clients` 包含客户端程序，用来访问和修改openldap目录
 
 具体安装的时候版本是2.4.40-12.el6。
 
@@ -76,14 +76,14 @@ URI ldap://10.10.10.1:389
 在LDAP服务端已经配置运行成功后，我们可以在任何想使用LDAP服务的机器上部署客户端软件。
 
 在客户端我们需要安装一个包
- - `nss-pam-ldapd` 这个包主要提供了两个库一个是`libnss_ldap`，另一个是`pam_ldap`。
+- `nss-pam-ldapd` 这个包主要提供了两个库一个是`libnss_ldap`，另一个是`pam_ldap`。
 
 接下来我们可以通过`authconfig-tui`来进行配置，这是一个命令行里的图形界面，我们只需要选择几个选项就可以了。具体过程可以参考[这里](http://www.ibm.com/developerworks/cn/linux/l-openldap/)。如果直接运行`authconfig-tui`不行的话，可以尝试`/usr/bin/python2.6 /usr/sbin/authconfig-tui`，另外如果不用这个配置的话，需要单独配置`/etc/pam.d/system-auth /etc/nsswitch.conf /etc/nslcd.conf /etc/sysconfig/authconfig`这几个配置文件，比较繁琐并且容易出错，如果需要的话，可以参考[这里](http://anquange.lofter.com/post/2effed_ce0eb4))。
 
 最后，为了后面使用方便，我们还要做两件事:
- - 使用`visudo`将赋予admin组成员sudo权限
+- 使用`visudo`将赋予admin组成员sudo权限
         %admin ALL=(ALL) ALL
- - 编辑`/etc/pam.d/password-auth`，在最后加上下面那一行，这样当你登录的机器上没有你的家目录时会在登录时自动创建家目录
+- 编辑`/etc/pam.d/password-auth`，在最后加上下面那一行，这样当你登录的机器上没有你的家目录时会在登录时自动创建家目录
         session     optional      pam_mkhomedir.so skel=/etc/skel/ umask=0022
  
 
@@ -91,18 +91,18 @@ URI ldap://10.10.10.1:389
 
 
 这篇文档里面省略了很多细节，只是描述了大致的部署情况，至于具体的运转过程，可以参考下面的链接：
- - https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-a-basic-ldap-server-on-an-ubuntu-12-04-vps
- - https://www.digitalocean.com/community/tutorials/how-to-authenticate-client-computers-using-ldap-on-an-ubuntu-12-04-vps 
- - http://anquange.lofter.com/post/2effed_ce0eb4
- - http://www.ibm.com/developerworks/cn/linux/l-openldap/
- - http://www.cnblogs.com/lanxuezaipiao/p/3664676.html
- - http://jianshi-dlw.iteye.com/blog/1557846
- - https://wiki.gentoo.org/wiki/Centralized_authentication_using_OpenLDAP/zh-cn#.E9.9B.86.E4.B8.AD.E5.BC.8F.E8.AE.A4.E8.AF.81.E5.AE.A2.E6.88.B7.E7.AB.AF.E9.85.8D.E7.BD.AE
- - https://arthurdejong.org/nss-pam-ldapd/setup
- - https://www.centos.org/forums/viewtopic.php?t=48631
- - http://www.cnblogs.com/cute/archive/2012/05/17/2506342.html
- - https://access.redhat.com/discussions/903523
- - http://danwalsh.livejournal.com/69837.html
+- https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-a-basic-ldap-server-on-an-ubuntu-12-04-vps
+- https://www.digitalocean.com/community/tutorials/how-to-authenticate-client-computers-using-ldap-on-an-ubuntu-12-04-vps 
+- http://anquange.lofter.com/post/2effed_ce0eb4
+- http://www.ibm.com/developerworks/cn/linux/l-openldap/
+- http://www.cnblogs.com/lanxuezaipiao/p/3664676.html
+- http://jianshi-dlw.iteye.com/blog/1557846
+- https://wiki.gentoo.org/wiki/Centralized_authentication_using_OpenLDAP/zh-cn#.E9.9B.86.E4.B8.AD.E5.BC.8F.E8.AE.A4.E8.AF.81.E5.AE.A2.E6.88.B7.E7.AB.AF.E9.85.8D.E7.BD.AE
+- https://arthurdejong.org/nss-pam-ldapd/setup
+- https://www.centos.org/forums/viewtopic.php?t=48631
+- http://www.cnblogs.com/cute/archive/2012/05/17/2506342.html
+- https://access.redhat.com/discussions/903523
+- http://danwalsh.livejournal.com/69837.html
 
 这是关于安装phpldapadmin的文章
- - http://blog.zwiegnet.com/linux-server/install-and-configure-phpldapadmin-on-centos-6/
+- http://blog.zwiegnet.com/linux-server/install-and-configure-phpldapadmin-on-centos-6/
