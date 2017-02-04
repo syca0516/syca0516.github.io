@@ -67,10 +67,10 @@ URI ldap://10.10.10.1:389
 然后我们启动服务端并验证其是否运行正常
 
 ```
-# service slapd start
-# ps aux | grep slapd
-# netstat -an | grep 389
-# ldapsearch -x -b '' -s base '(objectclass=*)' namingContexts
+> service slapd start
+> ps aux | grep slapd
+> netstat -an | grep 389
+> ldapsearch -x -b '' -s base '(objectclass=*)' namingContexts
 ```
 
 到这里OpenLDAP服务端已经配置启动好了，但是这时候我们想要往里面添加信息需要用ldapadd等命令行工具，不是很方便，我们可以通过安装一个Web操作界面来简化这个过程，这里我们选择的是`phpldapadmin`。它的安装过程就不多说了，注意安装后还需要配置`/etc/phpldapadmin/config.php`以填写服务器的相关信息，这样才能将它与已经运行的slapd关联起来。现在我们可以通过`10.10.10.1:5000/phpldapadmin`来访问它。
@@ -82,7 +82,7 @@ URI ldap://10.10.10.1:389
 
 在客户端我们需要安装一个包
 
-1. `nss-pam-ldapd` 这个包主要提供了两个库一个是`libnss_ldap`，另一个是`pam_ldap`。
+- `nss-pam-ldapd` 这个包主要提供了两个库一个是`libnss_ldap`，另一个是`pam_ldap`。
 
 接下来我们可以通过`authconfig-tui`来进行配置，这是一个命令行里的图形界面，我们只需要选择几个选项就可以了。具体过程可以参考[这里](http://www.ibm.com/developerworks/cn/linux/l-openldap/)。如果直接运行`authconfig-tui`不行的话，可以尝试`/usr/bin/python2.6 /usr/sbin/authconfig-tui`，另外如果不用这个配置的话，需要单独配置`/etc/pam.d/system-auth /etc/nsswitch.conf /etc/nslcd.conf /etc/sysconfig/authconfig`这几个配置文件，比较繁琐并且容易出错，如果需要的话，可以参考[这里](http://anquange.lofter.com/post/2effed_ce0eb4))。
 
@@ -90,7 +90,7 @@ URI ldap://10.10.10.1:389
 
 1.使用`visudo`将赋予admin组成员sudo权限
 
-```
+```shell
 %admin ALL=(ALL) ALL
 ```
 
