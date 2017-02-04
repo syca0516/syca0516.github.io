@@ -12,9 +12,11 @@ LDAP(Lightweight Directory Access Protocol)是一个协议，它通过TCP/IP提�
 LDAP协议有很多实现，OpenLDAP就是其中一种。下面简单介绍一下OpenLDAP在CentOS 6.4上的安装部署过程。
 
 ## LDAP服务器
+
 假设服务器搭建在`10.10.10.1`上面，我们将直接用yum安装OpenLDAP（编译安装除了需要编译OpenLDAP外，还需要处理其依赖的BerkeleyDB，不过效果是一样的）
 
 我们需要安装以下这几个包
+
 1. `openldap` 包含openldap配置文件、库文件
 2. `openldap-servers` 包含slapd和slurpd（用于主从复制）、迁移脚本和相关文件
 3. `openldap-clients` 包含客户端程序，用来访问和修改openldap目录
@@ -75,9 +77,11 @@ URI ldap://10.10.10.1:389
 
 
 ## LDAP客户机
+
 在LDAP服务端已经配置运行成功后，我们可以在任何想使用LDAP服务的机器上部署客户端软件。
 
 在客户端我们需要安装一个包
+
 1. `nss-pam-ldapd` 这个包主要提供了两个库一个是`libnss_ldap`，另一个是`pam_ldap`。
 
 接下来我们可以通过`authconfig-tui`来进行配置，这是一个命令行里的图形界面，我们只需要选择几个选项就可以了。具体过程可以参考[这里](http://www.ibm.com/developerworks/cn/linux/l-openldap/)。如果直接运行`authconfig-tui`不行的话，可以尝试`/usr/bin/python2.6 /usr/sbin/authconfig-tui`，另外如果不用这个配置的话，需要单独配置`/etc/pam.d/system-auth /etc/nsswitch.conf /etc/nslcd.conf /etc/sysconfig/authconfig`这几个配置文件，比较繁琐并且容易出错，如果需要的话，可以参考[这里](http://anquange.lofter.com/post/2effed_ce0eb4))。
@@ -100,6 +104,7 @@ session     optional      pam_mkhomedir.so skel=/etc/skel/ umask=0022
 
 
 这篇文档里面省略了很多细节，只是描述了大致的部署情况，至于具体的运转过程，可以参考下面的链接：
+
 1. https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-a-basic-ldap-server-on-an-ubuntu-12-04-vps
 2. https://www.digitalocean.com/community/tutorials/how-to-authenticate-client-computers-using-ldap-on-an-ubuntu-12-04-vps 
 3. http://anquange.lofter.com/post/2effed_ce0eb4
@@ -114,4 +119,5 @@ session     optional      pam_mkhomedir.so skel=/etc/skel/ umask=0022
 12. http://danwalsh.livejournal.com/69837.html
 
 这是关于安装phpldapadmin的文章
+
 1. http://blog.zwiegnet.com/linux-server/install-and-configure-phpldapadmin-on-centos-6/
